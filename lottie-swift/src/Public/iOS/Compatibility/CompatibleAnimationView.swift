@@ -20,20 +20,37 @@ public final class CompatibleAnimation: NSObject {
   }
 
   @objc
+  static func animationFromJSON(_ animationJSON: NSDictionary) -> CompatibleAnimation {
+    return CompatibleAnimation(json: animationJSON)
+  }
+
+  @objc
   public init(name: String, bundle: Bundle = Bundle.main) {
     self.name = name
     self.bundle = bundle
+    self.json = nil
+    super.init()
+  }
+
+  private init(json: NSDictionary) {
+    self.name = nil
+    self.bundle = nil
+    self.json = json
     super.init()
   }
 
   internal var animation: Animation? {
-    return Animation.named(name, bundle: bundle)
+    if let json = self.json {
+      return Animation.animation(from: json as! [AnyHashable : Any])
+    }
+    return Animation.named(name!, bundle: bundle!)
   }
 
   // MARK: Private
 
-  private let name: String
-  private let bundle: Bundle
+  private let name: String?
+  private let bundle: Bundle?
+  private let json: NSDictionary?
 }
 
 /// An Objective-C compatible wrapper around Lottie's AnimationView.
